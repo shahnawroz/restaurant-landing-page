@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saffron Table — Intern Task Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B07D2F;
+    --gold-light: #D4A855;
+    --gold-dim: #8B6120;
+    --cream: #FFFFFF;
+    --cream-dark: #F5F0E8;
+    --ink: #1C1917;
+    --ink-mid: #44403C;
+    --ink-soft: #78716C;
+    --bg: #FAFAF9;
+    --bg-card: #FFFFFF;
+    --bg-card2: #F5F0E8;
+    --border: rgba(120,90,30,0.2);
+    --border-soft: rgba(120,90,30,0.1);
+    --red: #DC2626;
+    --green: #16A34A;
+    --blue: #2563EB;
+    --amber: #D97706;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Header */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,249,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--bg);
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+
+  .logo-text span:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .logo-text span:last-child {
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .header-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #F5F0E8;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .intern-tag {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 80px 48px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(176,125,47,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .hero-kicker::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(48px, 6vw, 84px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    max-width: 700px;
+    color: var(--ink);
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* Progress Summary */
+  .progress-bar-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    max-width: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 2px;
+    width: 0%;
+    animation: fillBar 1.5s ease forwards 0.5s;
+  }
+
+  @keyframes fillBar {
+    to { width: var(--target-width); }
+  }
+
+  .progress-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    gap: 1px;
+    margin-bottom: 64px;
+    max-width: 600px;
+  }
+
+  .stat-block {
+    flex: 1;
+    background: #FFFFFF;
+    border: 1px solid var(--border-soft);
+    padding: 20px 24px;
+    transition: border-color 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .stat-block:first-child { border-radius: 12px 0 0 12px; }
+  .stat-block:last-child { border-radius: 0 12px 12px 0; }
+  .stat-block:hover { border-color: var(--border); }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stat-num.gold { color: var(--gold); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.amber { color: var(--amber); }
+
+  /* Section label */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-soft);
+    max-width: 300px;
+  }
+  /* Day Cards */
+  .days-grid {
+    padding: 0 48px 80px;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+  }
+
+  .day-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    animation: fadeUp 0.5s ease both;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .day-card:hover {
+    border-color: var(--border);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .day-card:nth-child(1) { animation-delay: 0.05s; }
+  .day-card:nth-child(2) { animation-delay: 0.1s; }
+  .day-card:nth-child(3) { animation-delay: 0.15s; }
+  .day-card:nth-child(4) { animation-delay: 0.2s; }
+  .day-card:nth-child(5) { animation-delay: 0.25s; }
+  .day-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer;
+    user-select: none;
+    background: #FAFAF9;
+  }
+
+  .day-header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .day-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.12em;
+    padding: 4px 10px;
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+  }
+
+  .day-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .day-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .day-status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+
+  .status-todo {
+    background: #FFF7ED;
+    color: #C2410C;
+    border: 1px solid #FED7AA;
+  }
+
+  .status-inprogress {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: 1px solid #BFDBFE;
+  }
+
+  .status-done {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+  }
+
+  .status-review {
+    background: #FFFBEB;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+  }
+
+  .chevron {
+    color: var(--ink-soft);
+    transition: transform 0.3s;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .day-card.open .chevron { transform: rotate(180deg); }
+
+  .day-body {
+    display: none;
+    padding: 8px 28px 24px;
+  }
+
+  .day-card.open .day-body { display: block; }
+
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-soft);
+    transition: opacity 0.2s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+
+  .task-check {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid #D1C4A8;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.2s;
+    background: #FAFAF9;
+  }
+
+  .task-check:hover {
+    border-color: var(--gold);
+    background: #FEF9EE;
+  }
+
+  .task-check.checked {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .task-check.checked::after {
+    content: '✓';
+    color: var(--bg);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .task-content { flex: 1; }
+
+  .task-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+
+  .task-item.done .task-name {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+
+  .task-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .task-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-nextjs { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
+  .tag-ts { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+  .tag-tailwind { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+  .tag-antd { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+  .tag-design { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+  .tag-deploy { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+
+  .task-priority {
+    flex-shrink: 0;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    margin-top: 1px;
+    letter-spacing: 0.05em;
+  }
+
+  .priority-high { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+  .priority-mid { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+  .priority-low { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+  /* Tech stack pills */
+  .tech-stack {
+    padding: 0 48px 80px;
+  }
+
+  .tech-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .tech-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFFFF;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    transition: border-color 0.2s, transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .tech-pill:hover {
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+
+  .tech-pill-icon {
+    font-size: 18px;
+  }
+
+  /* Deliverables */
+  .deliverables {
+    padding: 0 48px 80px;
+  }
+
+  .deliverable-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .deliverable-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.3s, transform 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .deliverable-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+
+  .deliverable-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .deliverable-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+
+  .deliverable-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border-soft);
+    padding: 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #F5F0E8;
+  }
+
+  .footer-left {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-right span { color: var(--gold); }
+
+  /* Figma note banner */
+  .figma-banner {
+    margin: 0 48px 32px;
+    background: linear-gradient(135deg, #FEF9EE, #FBF3DC);
+    border: 1px solid rgba(176,125,47,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .figma-banner-icon { font-size: 32px; }
+
+  .figma-banner-text h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold-dim);
+    margin-bottom: 2px;
+  }
+
+  .figma-banner-text p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    header { padding: 0 20px; }
+    .hero { padding: 48px 20px 40px; }
+    .days-grid { padding: 0 20px 60px; }
+    .tech-stack { padding: 0 20px 60px; }
+    .deliverables { padding: 0 20px 60px; }
+    .figma-banner { margin: 0 20px 24px; }
+    footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
+    .stats-row { flex-direction: column; gap: 0; }
+    .stat-block:first-child { border-radius: 12px 12px 0 0; }
+    .stat-block:last-child { border-radius: 0 0 12px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-mark">S</div>
+    <div class="logo-text">
+      <span>Saffron Table</span>
+      <span>Project Workspace</span>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="header-badge">
+      <div class="pulse-dot"></div>
+      Active Sprint — 6 Days
+    </div>
+    <div class="intern-tag">Intern Task Board</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">Project Brief — Frontend Development</div>
+  <h1>Build <em>Saffron Table</em><br>Premium Landing Page</h1>
+  <p class="hero-sub">Your complete day-by-day task guide for delivering a world-class restaurant website. Follow each task carefully and produce clean, professional code.</p>
+
+  <div class="progress-bar-section">
+    <span class="progress-label">Overall Completion</span>
+    <div class="progress-track">
+      <div class="progress-fill" style="--target-width: 0%;"></div>
+    </div>
+    <span class="progress-pct" id="pctDisplay">0%</span>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-block">
+      <div class="stat-num gold" id="totalCount">28</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num green" id="doneCount">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num amber" id="leftCount">28</div>
+      <div class="stat-label">Remaining</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" style="color: var(--blue)">6</div>
+      <div class="stat-label">Working Days</div>
+    </div>
+  </div>
+</section>
+
+<div class="days-grid">
+
+  <!-- DAY 1 -->
+  <div class="day-card open">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 01</span>
+        <span class="day-title">Project Setup & Design System</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Initialize Next.js project with App Router</div>
+          <div class="task-desc">Run <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">npx create-next-app@latest saffron-table --typescript --tailwind --app</code> and verify the project boots without errors.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span><span class="tag tag-ts">TypeScript</span><span class="tag tag-tailwind">Tailwind</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Install & configure Ant Design v5</div>
+          <div class="task-desc">Install <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">antd</code>, wrap layout in AntdProvider, and test a sample component renders correctly.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Define folder structure & architecture</div>
+          <div class="task-desc">Create folders: <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/components</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/types</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/constants</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/utils</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/data</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/styles</code>. Keep it clean and scalable.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Set up color palette, fonts & global CSS variables</div>
+          <div class="task-desc">Define a premium restaurant color palette (deep burgundy, gold, cream tones). Add Google Fonts or local fonts. Use CSS custom properties for spacing (8px grid) and colors. No inline styles.</div>
+          <div class="task-tags"><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Define TypeScript interfaces for all data models</div>
+          <div class="task-desc">Create interfaces for: <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Dish</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Testimonial</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">NavLink</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">ReservationForm</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">GalleryItem</code>. Place in <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/types/index.ts</code>.</div>
+          <div class="task-tags"><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 02</span>
+        <span class="day-title">Navbar & Hero Section</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build responsive Navbar component</div>
+          <div class="task-desc">Logo + nav links (Home, About, Menu, Reservation, Contact) + "Book Table" CTA button. Sticky on scroll with blur backdrop. Mobile hamburger menu using Ant Design Drawer.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Implement smooth scroll & active link highlighting</div>
+          <div class="task-desc">Use <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">IntersectionObserver</code> to detect active section and highlight the correct nav link accordingly.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build Hero section with headline & CTAs</div>
+          <div class="task-desc">Headline: "Experience Fine Dining Like Never Before". Two CTA buttons: "Reserve a Table" (primary) + "View Menu" (outlined). Full-viewport height with premium food background image (use Unsplash placeholder). Overlay gradient for text contrast.</div>
+          <div class="task-tags"><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Test responsiveness on mobile, tablet, desktop</div>
+          <div class="task-desc">Use Chrome DevTools to check all breakpoints. Ensure no horizontal overflow, proper font sizes, and touch targets ≥ 44px on mobile.</div>
+          <div class="task-tags"><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 03</span>
+        <span class="day-title">About Section & Signature Dishes</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build About section with story & mission</div>
+          <div class="task-desc">Two-column layout: text on left (restaurant origin story, mission, ambiance description) + supporting image on right. Must be elegant and editorial. Collapses to single column on mobile.</div>
+          <div class="task-tags"><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Create Dish data array with 6+ entries</div>
+          <div class="task-desc">In <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/data/dishes.ts</code>, define 6+ dishes with: <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">name</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">description</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">price</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">image</code>, <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">category</code>. Use the <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Dish</code> TypeScript interface.</div>
+          <div class="task-tags"><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build Signature Dishes grid with DishCard component</div>
+          <div class="task-desc">Reusable <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">DishCard</code> component that accepts a <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Dish</code> prop. 3-column grid on desktop, 2 on tablet, 1 on mobile. Hover effect with image zoom.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span><span class="tag tag-ts">TypeScript</span><span class="tag tag-tailwind">Tailwind</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Add category filter tabs to dishes section</div>
+          <div class="task-desc">Use Ant Design <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Tabs</code> or custom tab buttons to filter dishes by category (Starters, Mains, Desserts). Animate transitions between filtered views.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-low">LOW</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 4 -->
+  <div class="day-card">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 04</span>
+        <span class="day-title">Reservation Form & Testimonials</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build fully validated Reservation form with Ant Design</div>
+          <div class="task-desc">Fields: Full Name, Email, Phone, Date (DatePicker), Time (TimePicker), Guests (InputNumber), Special Requests (TextArea). All fields must be validated using Ant Design Form validators. Show success confirmation modal on submit.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Style form to match premium restaurant aesthetic</div>
+          <div class="task-desc">Customize Ant Design token theme to match the site's color palette. Ensure the form looks upscale — not generic. Dark/elegant background with refined input borders.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build Testimonials section with 3 reviews</div>
+          <div class="task-desc">Create <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">/data/testimonials.ts</code> with 3 reviews including: reviewer name, rating (1–5), review text, avatar. Use Ant Design <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Rate</code> component for stars.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Make Testimonials auto-scroll or horizontal carousel</div>
+          <div class="task-desc">Use Ant Design <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Carousel</code> with custom arrow controls for an elegant sliding testimonials experience.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span></div>
+        </div>
+        <span class="task-priority priority-low">LOW</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 5 -->
+  <div class="day-card">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 05</span>
+        <span class="day-title">Gallery, Footer & UI Refinement</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build Gallery section with masonry/grid layout</div>
+          <div class="task-desc">CSS grid gallery with at least 8 images. Mix portrait and landscape orientations for visual interest. Images should be sourced from Unsplash. Add hover overlay with a subtle zoom effect.</div>
+          <div class="task-tags"><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Add Ant Design Image lightbox to gallery</div>
+          <div class="task-desc">Wrap gallery images in Ant Design <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Image.PreviewGroup</code> so clicking any photo opens a fullscreen preview with navigation.</div>
+          <div class="task-tags"><span class="tag tag-antd">Ant Design</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Build Footer with all required info</div>
+          <div class="task-desc">Include: restaurant logo, address, phone, email, opening hours, social media icons (Instagram, Facebook, TripAdvisor), copyright notice. Multi-column layout on desktop, stacked on mobile.</div>
+          <div class="task-tags"><span class="tag tag-tailwind">Tailwind</span><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Polish spacing, typography & visual consistency</div>
+          <div class="task-desc">Review every section against the 8px spacing system. Ensure consistent font weights, line heights, and heading hierarchy throughout. Fix any misaligned elements.</div>
+          <div class="task-tags"><span class="tag tag-design">Design</span><span class="tag tag-tailwind">Tailwind</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Add scroll-triggered reveal animations</div>
+          <div class="task-desc">Use <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">IntersectionObserver</code> or a lightweight library to fade-in/slide-up sections as the user scrolls. Keep animations subtle and professional — not distracting.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span></div>
+        </div>
+        <span class="task-priority priority-low">LOW</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 6 -->
+  <div class="day-card">
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-header-left">
+        <span class="day-number">DAY 06</span>
+        <span class="day-title">QA, Optimization & Deployment</span>
+      </div>
+      <div class="day-header-right">
+        <span class="day-status-badge status-todo">To Do</span>
+        <span class="chevron">⌄</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Full responsiveness audit across all breakpoints</div>
+          <div class="task-desc">Test on: iPhone SE (375px), iPhone 14 Pro (390px), iPad (768px), iPad Pro (1024px), desktop (1440px), ultrawide (1920px). Fix any layout breaks found.</div>
+          <div class="task-tags"><span class="tag tag-design">Design</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Optimize images with next/image & performance</div>
+          <div class="task-desc">Replace all <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">&lt;img&gt;</code> tags with Next.js <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">Image</code> component. Add <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">priority</code> to hero image. Target Lighthouse Performance score ≥ 90.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Code cleanup — remove console.logs & dead code</div>
+          <div class="task-desc">Search entire codebase for <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">console.log</code>, commented-out blocks, TODO comments, and unused imports. Run <code style="color:#92400E;background:#FFFBEB;padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px">tsc --noEmit</code> to verify zero TypeScript errors.</div>
+          <div class="task-tags"><span class="tag tag-ts">TypeScript</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Write README.md with setup & deployment instructions</div>
+          <div class="task-desc">Include: project description, tech stack, installation steps, environment variables (if any), running locally, and deployment instructions. Make it professional — this is a portfolio piece.</div>
+          <div class="task-tags"><span class="tag tag-nextjs">Next.js</span></div>
+        </div>
+        <span class="task-priority priority-mid">MID</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-name">Deploy to Vercel & share live URL</div>
+          <div class="task-desc">Push to GitHub, connect repo to Vercel, deploy. Share the live URL and GitHub repo link with your supervisor. Take screenshots of the live site for portfolio use.</div>
+          <div class="task-tags"><span class="tag tag-deploy">Deploy</span></div>
+        </div>
+        <span class="task-priority priority-high">HIGH</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Tech Stack -->
+<div class="tech-stack">
+  <div class="section-label">Mandatory Technology Stack</div>
+  <div class="tech-row">
+    <div class="tech-pill">
+      <span class="tech-pill-icon">▲</span>
+      Next.js App Router
+    </div>
+    <div class="tech-pill">
+      <span class="tech-pill-icon" style="color:#3178c6">TS</span>
+      TypeScript
+    </div>
+    <div class="tech-pill">
+      <span class="tech-pill-icon" style="color:#06b6d4">◈</span>
+      Tailwind CSS
+    </div>
+    <div class="tech-pill">
+      <span class="tech-pill-icon" style="color:#1677ff">🐜</span>
+      Ant Design v5
+    </div>
+    <div class="tech-pill">
+      <span class="tech-pill-icon" style="color:#F24E1E">🎨</span>
+      Figma (Design)
+    </div>
+    <div class="tech-pill">
+      <span class="tech-pill-icon">▴</span>
+      Vercel (Deploy)
+    </div>
+  </div>
+</div>
+
+<!-- Figma Note -->
+<div class="figma-banner">
+  <div class="figma-banner-icon">🎨</div>
+  <div class="figma-banner-text">
+    <h4>Figma Design File — Reference for All Components</h4>
+    <p>Before writing any code, refer to the Figma design file for exact spacing, colors, typography, and component layouts. All components should match the design spec precisely. The 8px grid system is enforced throughout the design.</p>
+  </div>
+</div>
+
+<!-- Deliverables -->
+<div class="deliverables">
+  <div class="section-label">Final Deliverables</div>
+  <div class="deliverable-grid">
+    <div class="deliverable-card">
+      <div class="deliverable-icon">📁</div>
+      <div class="deliverable-title">GitHub Repository</div>
+      <div class="deliverable-desc">Clean commit history with meaningful messages. Each day's work should be a separate commit or PR.</div>
+    </div>
+    <div class="deliverable-card">
+      <div class="deliverable-icon">📄</div>
+      <div class="deliverable-title">README.md</div>
+      <div class="deliverable-desc">Professional documentation with setup instructions, tech stack overview, and deployment guide.</div>
+    </div>
+    <div class="deliverable-card">
+      <div class="deliverable-icon">🌐</div>
+      <div class="deliverable-title">Live Vercel URL</div>
+      <div class="deliverable-desc">Deployed and accessible production site. Must load in under 3 seconds on a standard connection.</div>
+    </div>
+    <div class="deliverable-card">
+      <div class="deliverable-icon">📸</div>
+      <div class="deliverable-title">Portfolio Screenshots</div>
+      <div class="deliverable-desc">Full-page screenshots of desktop and mobile views of each major section for the company portfolio.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">Saffron Table — Premium Dining Experience</div>
+  <div class="footer-right">Sprint Duration: <span>6 Working Days</span> · Stack: <span>Next.js + TypeScript + Tailwind + Ant Design</span></div>
+</footer>
+
+<script>
+  function toggleDay(header) {
+    const card = header.closest('.day-card');
+    card.classList.toggle('open');
+  }
+
+  function toggleTask(taskItem) {
+    taskItem.classList.toggle('done');
+    const check = taskItem.querySelector('.task-check');
+    check.classList.toggle('checked');
+    updateStats();
+  }
+
+  function updateStats() {
+    const total = document.querySelectorAll('.task-item').length;
+    const done = document.querySelectorAll('.task-item.done').length;
+    const left = total - done;
+    const pct = Math.round((done / total) * 100);
+
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('doneCount').textContent = done;
+    document.getElementById('leftCount').textContent = left;
+    document.getElementById('pctDisplay').textContent = pct + '%';
+
+    const fill = document.querySelector('.progress-fill');
+    fill.style.width = pct + '%';
+    fill.style.animation = 'none';
+  }
+
+  // Initialize
+  updateStats();
+</script>
+</body>
+</html>
